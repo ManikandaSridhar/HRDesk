@@ -1,5 +1,5 @@
 {
-  "name": "HRDesk-backend",
+  "name": "hrdesk-backend",
   "version": "1.0.0",
   "description": "HRDesk Backend API with MongoDB Atlas",
   "main": "server.js",

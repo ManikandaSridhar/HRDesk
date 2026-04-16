@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const User = require('../models/Users');
+const User = require('../models/User');
 const { signToken } = require('../middleware/auth');
 
 // GET /api/users/me
