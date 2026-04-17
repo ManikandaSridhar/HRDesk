@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { ini } from '../../utils/helper';
-import { updateProfileAPI } from '../../utils/api';
+
 
 const ProfilePanel = ({ isOpen, onClose }) => {
   const { user, updateUser } = useAuth();
@@ -30,49 +30,53 @@ const ProfilePanel = ({ isOpen, onClose }) => {
     }
   }, [isOpen, user]);
 
-  // ✅ SINGLE handleSave (fixed only)
-  const handleSave = async () => {
-    if (!fn.trim()) {
-      setMsg({ text: 'First name is required', type: 'err' });
-      return;
+  
+const handleSave = async () => {
+  if (!fn.trim()) {
+    setMsg({ text: "First name is required", type: "err" });
+    return;
+  }
+
+  if (!email.trim()) {
+    setMsg({ text: "Email is required", type: "err" });
+    return;
+  }
+
+  setLoading(true); 
+
+  try {
+    const res = await fetch("http://localhost:5000/api/users/update", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: user.email,
+        firstName: fn,
+        lastName: ln,
+        phone: phone,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message);
     }
-    if (!email.trim()) {
-      setMsg({ text: 'Email is required', type: 'err' });
-      return;
-    }
-    if (user?.isDemo || user?.id === 'demo') {
-      setMsg({ text: 'Demo users cannot edit profile', type: 'err' });
-      return;
-    }
 
-    setLoading(true);
-    try {
-      const res = await updateProfileAPI({
-        firstName: fn,   // ✅ fixed
-        lastName: ln,    // ✅ fixed
-        email,
-        phone,
-      });
+    updateUser(data.user);
 
-      const data = await res.json(); // ✅ fetch fix
+    setMsg({ text: "Profile updated successfully ✅", type: "ok" });
 
-      if (!res.ok) throw new Error(data.message);
+    authToast("Profile updated ✅");
 
-      updateUser(data.user); // ✅ fixed
+  } catch (err) {
+    setMsg({ text: err.message || "Update failed ❌", type: "err" });
+  } finally {
+    setLoading(false); // 🔥 ADD THIS
+  }
+};
 
-      setMsg({ text: '✓ Profile updated successfully!', type: 'ok' });
-      authToast('Profile saved! ✓');
-      setTimeout(() => setMsg({ text: '', type: '' }), 3000);
-
-    } catch (err) {
-      setMsg({
-        text: err.message || 'Failed to update profile',
-        type: 'err',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose();
@@ -167,13 +171,13 @@ const ProfilePanel = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          <button
-            className="panel-btn"
-            onClick={handleSave}
-            disabled={loading}
+         <button
+          className="panel-btn"
+           onClick={handleSave}
+          disabled={loading}
           >
-            {loading ? 'Saving...' : '✓ Save Changes'}
-          </button>
+         {loading ? "Saving..." : "✓ Save Changes"}
+        </button>
         </div>
       </div>
     </div>

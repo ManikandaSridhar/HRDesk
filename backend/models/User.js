@@ -56,11 +56,11 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// 🔥 Remove sensitive fields in response
+
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
 
-  delete obj.password; // ❌ hide password
+  delete obj.password; 
   obj.id = obj._id.toString();
 
   delete obj._id;
