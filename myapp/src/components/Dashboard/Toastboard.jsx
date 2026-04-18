@@ -8,7 +8,7 @@ import Modal from '../Modal/Modal';
 import ProfilePanel from '../Panels/ProfilePanel';
 import SettingsPanel from '../Panels/SettingsPanel';
 import Header from '../Header/Header';
-import EmployeeTable from './EmployeeTable';
+import EmployeeTable from './Employeetable';
 
 const Toastboard = () => {
   const { user } = useAuth();
