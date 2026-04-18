@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-// ❌ REMOVE THIS:
-// import { loginAPI, signupAPI } from '../utils/api';
+import api from '../utils/api';
 
 const AuthContext = createContext(null);
 
@@ -35,30 +34,29 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   }, []);
 
-  // ✅ LOGIN (fixed)
-  const login = useCallback(
-    async (email, password, remember) => {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password })
+
+const login = useCallback(
+  async (email, password, remember) => {
+    try {
+      const res = await api.post("/auth/login", {
+        email,
+        password,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-
+      const data = res.data;
       saveSession(data.user, data.token || "dummy-token", remember);
       return data.user;
-    },
-    [saveSession]
-  );
 
-  // ✅ DEMO LOGIN
+    } catch (error) {
+      console.error("LOGIN ERROR ❌", error);
+      throw error.response?.data || error;
+    }
+  },
+  [saveSession]
+);
+
+
+
   const demoLogin = useCallback(() => {
     const demoUser = {
       id: 'demo',
@@ -69,35 +67,22 @@ export const AuthProvider = ({ children }) => {
       isDemo: true,
     };
     saveSession(demoUser, 'demo-token', false);
-    return demoUser;
+    return demoUser;  
   }, [saveSession]);
 
-  // ✅ SIGNUP (🔥 MAIN FIX)
+
   const signup = useCallback(async (userData) => {
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(userData)
-      });
+  try {
+    const res = await api.post("/auth/signup", userData);
+    return res.data;
 
-      const data = await res.json();
+  } catch (error) {
+    console.error("SIGNUP ERROR ❌", error);
+    throw error.response?.data || error;
+  }
+}, []);
 
-      console.log("SIGNUP RESPONSE 👉", data); // debug
 
-      if (!res.ok) {
-        throw new Error(data.message || "Signup failed");
-      }
-
-      return data;
-
-    } catch (error) {
-      console.error("SIGNUP ERROR ❌", error);
-      throw error;
-    }
-  }, []);
 
   const logout = useCallback(() => {
     clearSession();

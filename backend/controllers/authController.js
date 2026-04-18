@@ -44,7 +44,6 @@ const login = async (req, res) => {
   }
 };
 
-// POST /api/auth/register  (also /api/auth/signup for compatibility)
 const signup = async (req, res) => {
   try {
     const { firstName, lastName, email, phone, password } = req.body;

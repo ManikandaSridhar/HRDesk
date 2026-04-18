@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { signToken } = require('../middleware/auth');
 
-// GET /api/users/me
 const getProfile = async (req, res) => {
   try {
     if (req.user.id === 'demo') {
@@ -26,7 +25,7 @@ const getProfile = async (req, res) => {
   }
 };
 
-// PUT /api/users/profile
+
 const updateProfile = async (req, res) => {
   try {
     if (req.user.id === 'demo') {
@@ -42,7 +41,6 @@ const updateProfile = async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    // Check if email taken by another user
     const existing = await User.findOne({
       email: email.toLowerCase(),
       _id: { $ne: req.user.id },
@@ -130,7 +128,7 @@ const getSettings = async (req, res) => {
   }
 };
 
-// PUT /api/users/settings
+
 const updateSettings = async (req, res) => {
   try {
     if (req.user.id === 'demo') {

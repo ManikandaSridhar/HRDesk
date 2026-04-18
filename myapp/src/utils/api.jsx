@@ -1,11 +1,11 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://hrdesk-backend.onrender.com/api/auth', 
+  baseURL: 'https://hrdesk-backend.onrender.com/api', 
   headers: { 'Content-Type': 'application/json' },
 });
 
-// ── Request Interceptor ──
+
 api.interceptors.request.use((config) => {
   const token =
     localStorage.getItem('sh_token') || sessionStorage.getItem('sh_token');
