@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { ini, pwStrength } from '../../utils/helper';
+import api from '../../utils/api';
 
 
 const SettingsPanel = ({ isOpen, onClose }) => {
@@ -44,64 +45,47 @@ const SettingsPanel = ({ isOpen, onClose }) => {
     return;
   }
 
-  try {
-    const res = await fetch("http://localhost:5000/api/auth/change-password", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email: user.email,            
-        currentPassword: oldPw,       
-        newPassword: newPw
-      })
-    });
+ setLoading(true);
 
-    const data = await res.json();
+try {
+  await api.post("/auth/change-password", {
+    email: user.email,
+    currentPassword: oldPw,
+    newPassword: newPw,
+  });
 
-    if (!res.ok) {
-      throw new Error(data.message);
-    }
+  setMsg({ text: "Password updated successfully ✅", type: "ok" });
 
-    setMsg({ text: "Password updated successfully ✅", type: "ok" });
-
-  } catch (err) {
-    setMsg({
-      text: err.message || "Failed to change password",
-      type: "err"
-    });
-  }
+} catch (err) {
+  setMsg({
+    text: err.response?.data?.message || "Failed to change password",
+    type: "err"
+  });
+} finally {
+  setLoading(false);
+}
 };
 
 
- const handleDeleteAccount = async () => {
-  try {
-    const res = await fetch("http://localhost:5000/api/auth/delete-account", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email: user.email
-      })
-    });
+const handleDeleteAccount = async () => {
+  setLoading(true);
 
-    const data = await res.json();
+try {
+  await api.delete("/auth/delete-account", {
+    data: { email: user.email }
+  });
 
-    if (!res.ok) {
-      throw new Error(data.message);
-    }
+  alert("Account deleted successfully ✅");
+  logout();
+  onClose();
 
-    alert("Account deleted successfully ✅");
-
-    // 🔥 IMPORTANT PART
-    logout();        // user remove
-    onClose();       // settings close
-
-  } catch (err) {
-    alert(err.message);
-  }
+} catch (err) {
+  alert(err.response?.data?.message || "Delete failed");
+} finally {
+  setLoading(false);
+}
 };
+
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose();
