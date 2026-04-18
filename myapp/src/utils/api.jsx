@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://hrdesk-backend.onrender.com/api', 
+  baseURL: 'https://hrdesk-backend.onrender.com/api/auth', 
   headers: { 'Content-Type': 'application/json' },
 });
 
