@@ -164,15 +164,25 @@ const Auth = () => {
             </div>
             <div className="a-field">
               <label className="a-label">Password</label>
+              <div className="pw-toggle">
               <input
                 className="a-input"
-                type="password"
+                type={showPass ? 'text' : 'password'}
                 placeholder="Enter your password"
                 required
                 value={loginPass}
                 onChange={(e) => setLoginPass(e.target.value)}
               />
+              <button
+                type="button"
+                className="pw-eye"
+                onClick={() => setShowPass((p) => !p)}
+              >
+                {showPass ? '🙈' : '👁'}
+              </button>
+              </div>
             </div>
+            
             <div
               style={{
                 display: 'flex',

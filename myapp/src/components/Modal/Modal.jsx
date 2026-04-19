@@ -195,18 +195,18 @@ const Modal = ({ isOpen, onClose, onSave, editEmployee }) => {
             </div>
 
           <div className="form-group">
-  <label className="form-label">Manager</label>
-  <input
-    type="text"
-    name="manager"
-    className="form-input"   // 🔥 IMPORTANT
-    value={form.manager}
-    onChange={(e) =>
-      setForm({ ...form, manager: e.target.value })
-    }
-    placeholder="Manager name"
-  />
-</div>
+          <label className="form-label">Manager</label>
+           <input
+              type="text"
+              name="manager"
+              className="form-input"   
+               value={form.manager}
+               onChange={(e) =>
+              setForm({ ...form, manager: e.target.value })
+       }
+           placeholder="Manager name"
+       />
+      </div>
 
             <div className="form-group">
               <label className="form-label">Work Mode</label>

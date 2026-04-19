@@ -15,7 +15,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ── Response Interceptor ──
+
 api.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -33,7 +33,7 @@ api.interceptors.response.use(
   }
 );
 
-// ── Auth ──
+
 export const loginAPI = (email, password) =>
   api.post('/auth/login', { email, password });
 
@@ -45,7 +45,7 @@ export const getProfileAPI = () =>
   api.get('/users/me');
 
 export const updateProfileAPI = (data) =>
-  api.put('/users/update-profile', data);
+  api.put('/users/update', data);
 
 export const changePasswordAPI = (data) =>
   api.put('/users/password', data);
@@ -61,7 +61,7 @@ export const deleteAccountAPI = (email) =>
     data: { email }
   });
 
-// ── Employees ──
+
 export const getEmployeesAPI = (params = {}) =>
   api.get('/employees', { params });
 

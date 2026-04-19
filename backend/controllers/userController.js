@@ -34,30 +34,40 @@ const updateProfile = async (req, res) => {
 
     const { firstName, lastName, email, phone } = req.body;
 
-    if (!firstName || !firstName.trim()) {
-      return res.status(400).json({ error: 'First name is required' });
-    }
-    if (!email || !email.trim()) {
-      return res.status(400).json({ error: 'Email is required' });
-    }
+   if (!firstName || !firstName.trim()) {
+  return res.status(400).json({ error: 'First name is required' });
+}
 
-    const existing = await User.findOne({
-      email: email.toLowerCase(),
-      _id: { $ne: req.user.id },
-    });
+if (email && !email.trim()) {
+  return res.status(400).json({ error: 'Invalid email' });
+}
+
+   let existing = null;
+
+if (email) {
+  existing = await User.findOne({
+    email: email.toLowerCase().trim(),
+    _id: { $ne: req.user.id },
+  });
+}
+
+if (existing) {
+  return res.status(409).json({ error: 'Email already in use by another account' });
+}
+
     if (existing) {
       return res.status(409).json({ error: 'Email already in use by another account' });
     }
 
     const updated = await User.findByIdAndUpdate(
-      req.user.id,
-      {
-        name: `${firstName.trim()} ${(lastName || '').trim()}`.trim(),
-        email: email.toLowerCase().trim(),
-        phone: phone || '',
-      },
-      { new: true, runValidators: true }
-    );
+  req.user.id,
+  {
+    name: `${firstName.trim()} ${(lastName || '').trim()}`.trim(),
+    email: email ? email.toLowerCase().trim() : undefined,
+    phone: phone || '',
+  },
+  { new: true, runValidators: true }
+);
 
     if (!updated) return res.status(404).json({ error: 'User not found' });
 
@@ -77,7 +87,6 @@ const updateProfile = async (req, res) => {
   }
 };
 
-// PUT /api/users/password
 const changePassword = async (req, res) => {
   try {
     if (req.user.id === 'demo') {
@@ -114,7 +123,6 @@ const changePassword = async (req, res) => {
   }
 };
 
-// GET /api/users/settings  (returns user settings/preferences — stored in user doc)
 const getSettings = async (req, res) => {
   try {
     if (req.user.id === 'demo') {
@@ -134,14 +142,13 @@ const updateSettings = async (req, res) => {
     if (req.user.id === 'demo') {
       return res.status(403).json({ error: 'Demo users cannot update settings' });
     }
-    // For now, settings are lightweight (theme/notifications are frontend-only)
+    
     res.json({ message: 'Settings updated' });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
 };
 
-// DELETE /api/users/account
 const deleteAccount = async (req, res) => {
   try {
     if (req.user.id === 'demo') {
@@ -151,7 +158,6 @@ const deleteAccount = async (req, res) => {
     const deleted = await User.findByIdAndDelete(req.user.id);
     if (!deleted) return res.status(404).json({ error: 'User not found' });
 
-    // Also delete the user's employees
     const Employee = require('../models/Employee');
     await Employee.deleteMany({ userId: req.user.id });
 

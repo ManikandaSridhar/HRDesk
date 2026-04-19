@@ -2,20 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { ini } from '../../utils/helper';
-
+import api from "../../utils/api";
 
 const ProfilePanel = ({ isOpen, onClose }) => {
-  const { user, updateUser } = useAuth();
-  const { authToast } = useToast();
+const { user, updateUser } = useAuth();
+const { authToast } = useToast();
 
-  const [fn, setFn] = useState('');
-  const [ln, setLn] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [uid, setUid] = useState('');
-  const [joined, setJoined] = useState('');
-  const [msg, setMsg] = useState({ text: '', type: '' });
-  const [loading, setLoading] = useState(false);
+const [fn, setFn] = useState('');
+const [ln, setLn] = useState('');
+const [email, setEmail] = useState('');
+const [phone, setPhone] = useState('');
+const [uid, setUid] = useState('');
+const [joined, setJoined] = useState('');
+const [msg, setMsg] = useState({ text: '', type: '' });
+const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -30,6 +30,7 @@ const ProfilePanel = ({ isOpen, onClose }) => {
     }
   }, [isOpen, user]);
 
+
   
 const handleSave = async () => {
   if (!fn.trim()) {
@@ -37,43 +38,38 @@ const handleSave = async () => {
     return;
   }
 
-  if (!email.trim()) {
-    setMsg({ text: "Email is required", type: "err" });
-    return;
-  }
-
-  setLoading(true); 
+  setLoading(true);
 
   try {
-    const res = await fetch("http://localhost:5000/api/users/update", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: user.email,
-        firstName: fn,
-        lastName: ln,
-        phone: phone,
-      }),
+    const res = await api.put("/users/update", {
+      firstName: fn,
+      lastName: ln,
+      phone: phone,
+      email: email
     });
 
-    const data = await res.json();
+    const data = res.data;
 
-    if (!res.ok) {
-      throw new Error(data.message);
-    }
-
-    updateUser(data.user);
+  updateUser(
+  {
+    ...data.user,
+    name: (fn + " " + ln).trim(),
+    email: email,
+    phone: phone
+  },
+  data.token  
+);
 
     setMsg({ text: "Profile updated successfully ✅", type: "ok" });
-
     authToast("Profile updated ✅");
 
   } catch (err) {
-    setMsg({ text: err.message || "Update failed ❌", type: "err" });
+    setMsg({
+      text: err.response?.data?.message || "Update failed ❌",
+      type: "err"
+    });
   } finally {
-    setLoading(false); // 🔥 ADD THIS
+    setLoading(false);
   }
 };
 
