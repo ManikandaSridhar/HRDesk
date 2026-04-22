@@ -9,23 +9,33 @@ router.get("/me", authenticate, getProfile);
 
 router.put("/update", authenticate, async (req, res) => {
   try {
-    const { firstName, lastName, phone, email } = req.body;
+    const { firstName, lastName, name, phone, email } = req.body;
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ message: "Email is required ❌" });
+    }
+
+    const existing = await User.findOne({ email });
+    if (existing && existing._id.toString() !== req.user.id) {
+      return res.status(400).json({ message: "Email already in use ❌" });
+    }
+
+    const updatedName =
+      name || ((firstName || "") + " " + (lastName || "")).trim();
 
     const user = await User.findByIdAndUpdate(
       req.user.id,
-
-     {
-  name: ((firstName || "") + " " + (lastName || "")).trim(),
-  phone: phone || "",
-  email: email
-   },
-
+      {
+        name: updatedName,
+        phone: phone || "",
+        email: email
+      },
       { new: true }
     );
 
     if (!user) {
-  return res.status(404).json({ message: "User not found ❌" });
-}
+      return res.status(404).json({ message: "User not found ❌" });
+    }
 
     res.json({ user });
 
